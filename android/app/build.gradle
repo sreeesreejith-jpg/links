@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.nexushub.app"
+    namespace "com.sreejith.links"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.nexushub.app"
+        applicationId "com.sreejith.links"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

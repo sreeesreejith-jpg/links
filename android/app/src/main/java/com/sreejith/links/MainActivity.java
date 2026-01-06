@@ -1,4 +1,4 @@
-package com.nexushub.app;
+package com.sreejith.links;
 
 import com.getcapacitor.BridgeActivity;
 
