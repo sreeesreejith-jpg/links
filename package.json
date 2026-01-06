@@ -1,9 +1,10 @@
 {
-    "name": "nexus-hub",
+    "name": "sreejith-links",
     "version": "1.0.0",
     "description": "Premium Useful Links Portal",
     "main": "index.html",
     "scripts": {
+        "build": "mkdir -p www && cp index.html style.css script.js manifest.json icon-192.png icon-512.png www/",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
@@ -15,6 +16,6 @@
         "@capacitor/preferences": "^8.0.0"
     },
     "devDependencies": {
-        "@capacitor/cli": "^7.4.4"
+        "@capacitor/cli": "^8.0.0"
     }
 }

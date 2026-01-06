@@ -28,9 +28,7 @@ jobs:
           java-version: '17'
 
       - name: Build Web Assets
-        run: |
-          mkdir -p www
-          cp index.html style.css script.js manifest.json icon-192.png icon-512.png www/
+        run: npm run build
 
       - name: Sync Capacitor
         run: npx cap sync
