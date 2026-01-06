@@ -3,91 +3,164 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sreejith Link | Useful Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sreejith Link | Premium Useful Hub</title>
     <meta name="description"
-        content="A curated portal for your most important web destinations. Quick, elegant, and organized.">
+        content="A premium curated portal for your most important web destinations. Quick, elegant, and organized.">
+
+    <!-- Theme Color for Mobile Browsers -->
+    <meta name="theme-color" content="#0f172a">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
-    <!-- Lucide Icons for premium feel -->
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
-    <div class="background-animation"></div>
+    <!-- Premium Backdrop -->
+    <div class="mesh-gradient"></div>
+    <div class="glass-overlay"></div>
 
     <header>
         <div class="header-content">
             <h1 class="logo">Sreejith<span>Link</span></h1>
             <nav class="main-nav">
-                <button id="navHome" class="nav-btn active"><i data-lucide="home"></i> Home</button>
-                <button id="navAdd" class="nav-btn"><i data-lucide="plus-circle"></i> Add Link</button>
+                <button id="navHome" class="nav-btn active" onclick="showPage('home')">
+                    <i data-lucide="layout-grid"></i>
+                    <span>Portal</span>
+                </button>
+                <button id="navAdd" class="nav-btn" onclick="showPage('add')">
+                    <i data-lucide="plus"></i>
+                    <span>Add Link</span>
+                </button>
             </nav>
         </div>
     </header>
 
     <main class="container">
-        <!-- Page 1: Home/View Links -->
+        <!-- Home Page -->
         <div id="homePage" class="page active">
-            <div class="search-container">
-                <i data-lucide="search"></i>
-                <input type="text" id="linkSearch" placeholder="Search links, markets, utilities...">
+            <div class="hero-section">
+                <h2>Welcome back, Sreejith</h2>
+                <p>Efficiency starts with organized access.</p>
             </div>
 
-            <section class="category-filters">
-                <button class="filter-btn active" data-category="all">All</button>
-                <button class="filter-btn" data-category="finance">Finance</button>
-                <button class="filter-btn" data-category="utilities">Utilities</button>
-                <button class="filter-btn" data-category="personal">Personal</button>
+            <div class="search-bar-wrapper">
+                <div class="search-container">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" id="linkSearch" placeholder="Search your digital hub...">
+                    <kbd class="search-kb">⌘K</kbd>
+                </div>
+            </div>
+
+            <section class="filter-section">
+                <div class="category-filters" id="categoryFilters">
+                    <button class="filter-btn active" data-category="all">All</button>
+                    <button class="filter-btn" data-category="finance">Finance</button>
+                    <button class="filter-btn" data-category="utilities">Utilities</button>
+                    <button class="filter-btn" data-category="work">Work</button>
+                    <button class="filter-btn" data-category="personal">Personal</button>
+                    <button class="filter-btn" data-category="social">Social</button>
+                </div>
             </section>
 
             <div class="links-grid" id="linksGrid">
-                <!-- Links will be dynamically injected here -->
+                <!-- Links injected by script.js -->
             </div>
         </div>
 
-        <!-- Page 2: Add Link -->
+        <!-- Add/Edit Page -->
         <div id="addPage" class="page">
-            <div class="form-container glass-card">
-                <h2>Add New Resource</h2>
-                <div class="input-group">
-                    <label>Link Title</label>
-                    <input type="text" id="linkTitle" placeholder="e.g. NIFTY 50">
+            <div class="form-view-container">
+                <div class="form-card glass-card">
+                    <div class="form-header">
+                        <i data-lucide="plus-circle" id="formIcon"></i>
+                        <h2 id="formTitle">Add New Resource</h2>
+                        <p>Fill in the details to expand your portal.</p>
+                    </div>
+
+                    <form id="linkForm" class="link-form">
+                        <input type="hidden" id="editId">
+
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="linkTitle">Resource Name</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="type"></i>
+                                    <input type="text" id="linkTitle" placeholder="e.g. NSE India" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="linkUrl">URL Address</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="link"></i>
+                                    <input type="url" id="linkUrl" placeholder="https://www.nseindia.com" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="linkCategory">Category</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="tag"></i>
+                                    <select id="linkCategory">
+                                        <option value="finance">Finance</option>
+                                        <option value="utilities">Utilities</option>
+                                        <option value="work">Work</option>
+                                        <option value="personal">Personal</option>
+                                        <option value="social">Social</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="secondary-btn" onclick="showPage('home')">Cancel</button>
+                            <button type="submit" id="saveBtn" class="primary-btn">
+                                <i data-lucide="save"></i>
+                                <span>Save Link</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="input-group">
-                    <label>URL Address</label>
-                    <input type="url" id="linkUrl" placeholder="https://example.com">
-                </div>
-                <div class="input-group">
-                    <label>Category</label>
-                    <select id="linkCategory">
-                        <option value="finance">Finance</option>
-                        <option value="utilities">Utilities</option>
-                        <option value="personal">Personal</option>
-                        <option value="work">Work</option>
-                    </select>
-                </div>
-                <button id="saveBtn" class="primary-btn">
-                    <i data-lucide="save"></i> Save Link
-                </button>
             </div>
         </div>
     </main>
 
     <footer>
         <div class="footer-content">
-            <p>&copy; 2026 Nexus Hub. All rights reserved.</p>
-            <p>Built for efficiency & elegance.</p>
+            <div class="footer-logo">Sreejith<span>Link</span></div>
+            <p>&copy; 2026 Sreejith Link Portal. Premium Experience.</p>
+            <div class="footer-links">
+                <a href="#"><i data-lucide="shield"></i> Privacy</a>
+                <a href="#"><i data-lucide="help-circle"></i> Help</a>
+                <a href="mailto:sreee.sreejith@gmail.com"><i data-lucide="mail"></i> Contact</a>
+            </div>
         </div>
     </footer>
 
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
     <script src="script.js"></script>
     <script>
-        lucide.createIcons();
+        // Initial icon creation
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
     </script>
 </body>
 

@@ -1,172 +1,258 @@
-// Capacitor Preferences for persistent storage
-// We'll use a dynamic import or fallback to localStorage if Capacitor isn't ready
-const dynamicStorage = {
-    async set(key, value) {
+/**
+ * Sreejith Link Portal - Business Logic
+ * Premium, Elegant, and Efficient.
+ */
+
+// --- Storage Service ---
+const Storage = {
+    KEY: 'sreejith_links_v2',
+    async save(links) {
         if (window.Capacitor && window.Capacitor.Plugins.Preferences) {
-            await window.Capacitor.Plugins.Preferences.set({ key, value: JSON.stringify(value) });
+            await window.Capacitor.Plugins.Preferences.set({
+                key: this.KEY,
+                value: JSON.stringify(links)
+            });
         } else {
-            localStorage.setItem(key, JSON.stringify(value));
+            localStorage.setItem(this.KEY, JSON.stringify(links));
         }
     },
-    async get(key) {
+    async load() {
+        let data;
         if (window.Capacitor && window.Capacitor.Plugins.Preferences) {
-            const { value } = await window.Capacitor.Plugins.Preferences.get({ key });
-            return value ? JSON.parse(value) : null;
+            const { value } = await window.Capacitor.Plugins.Preferences.get({ key: this.KEY });
+            data = value;
         } else {
-            const value = localStorage.getItem(key);
-            return value ? JSON.parse(value) : null;
+            data = localStorage.getItem(this.KEY);
         }
+        return data ? JSON.parse(data) : null;
     }
 };
 
-let userLinks = [
-    {
-        title: "NIFTY 50",
-        description: "Live NSE Nifty 50 Index - Real-time market data.",
-        url: "https://www.nseindia.com/market-data/live-equity-market?symbol=NIFTY%2050",
-        category: "finance",
-        icon: "trending-up"
-    }
-];
+// --- State Management ---
+let state = {
+    links: [
+        {
+            id: 'initial-1',
+            title: "NIFTY 50",
+            url: "https://www.nseindia.com/market-data/live-equity-market?symbol=NIFTY%2050",
+            category: "finance",
+            icon: "trending-up"
+        }
+    ],
+    filteredLinks: [],
+    activeCategory: 'all',
+    searchTerm: ''
+};
 
-// Elements
+// --- UI Elements ---
 const linksGrid = document.getElementById('linksGrid');
 const searchInput = document.getElementById('linkSearch');
-const filterBtns = document.querySelectorAll('.filter-btn');
-const navHome = document.getElementById('navHome');
-const navAdd = document.getElementById('navAdd');
-const homePage = document.getElementById('homePage');
-const addPage = document.getElementById('addPage');
-const saveBtn = document.getElementById('saveBtn');
+const categoryBtns = document.querySelectorAll('.filter-btn');
+const linkForm = document.getElementById('linkForm');
+const toastEl = document.getElementById('toast');
 
-// Navigation Logic
+// --- Core Functions ---
+
+function showToast(message) {
+    toastEl.textContent = message;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), 3000);
+}
+
 function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const pages = document.querySelectorAll('.page');
+    const navBtns = document.querySelectorAll('.nav-btn');
+
+    pages.forEach(p => p.classList.remove('active'));
+    navBtns.forEach(b => b.classList.remove('active'));
 
     if (pageId === 'home') {
-        homePage.classList.add('active');
-        navHome.classList.add('active');
-        renderLinks(userLinks);
+        document.getElementById('homePage').classList.add('active');
+        document.getElementById('navHome').classList.add('active');
+        resetForm();
     } else {
-        addPage.classList.add('active');
-        navAdd.classList.add('active');
+        document.getElementById('addPage').classList.add('active');
+        document.getElementById('navAdd').classList.add('active');
     }
 }
 
-navHome.addEventListener('click', () => showPage('home'));
-navAdd.addEventListener('click', () => showPage('add'));
+function resetForm() {
+    linkForm.reset();
+    document.getElementById('editId').value = '';
+    document.getElementById('formTitle').textContent = 'Add New Resource';
+    document.getElementById('formIcon').setAttribute('data-lucide', 'plus-circle');
+    if (window.lucide) lucide.createIcons();
+}
 
-// Render Logic
-function renderLinks(filteredLinks) {
+/**
+ * Renders the links to the grid
+ */
+function renderLinks() {
+    const term = state.searchTerm.toLowerCase();
+    const category = state.activeCategory;
+
+    state.filteredLinks = state.links.filter(link => {
+        const matchesSearch = link.title.toLowerCase().includes(term) || link.url.toLowerCase().includes(term);
+        const matchesCategory = category === 'all' || link.category === category;
+        return matchesSearch && matchesCategory;
+    });
+
     linksGrid.innerHTML = '';
 
-    if (filteredLinks.length === 0) {
+    if (state.filteredLinks.length === 0) {
         linksGrid.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">
-                <i data-lucide="search-x" style="width: 48px; height: 48px; margin-bottom: 1rem;"></i>
-                <p>No links found matching your criteria.</p>
+            <div class="empty-state" style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem;">
+                <i data-lucide="ghost" style="width: 64px; height: 64px; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+                <h3 style="color: var(--text-secondary);">No links found</h3>
+                <p style="color: var(--text-secondary); opacity: 0.7;">Try a different search or category.</p>
             </div>
         `;
-        if (window.lucide) lucide.createIcons();
-        return;
+    } else {
+        state.filteredLinks.forEach((link, index) => {
+            const card = document.createElement('div');
+            card.className = 'link-card-wrapper';
+            card.style.animation = `slideUp 0.4s ease forwards ${index * 0.05}s`;
+
+            // Map category to icon
+            const iconMap = {
+                finance: 'trending-up',
+                utilities: 'tool',
+                work: 'briefcase',
+                personal: 'user',
+                social: 'share-2'
+            };
+            const displayIcon = link.icon || iconMap[link.category] || 'link';
+
+            card.innerHTML = `
+                <a href="${link.url}" target="_blank" class="link-card">
+                    <div class="icon-box">
+                        <i data-lucide="${displayIcon}"></i>
+                    </div>
+                    <div class="link-info">
+                        <h3>${link.title}</h3>
+                        <p>${link.url.replace('https://', '').replace('http://', '')}</p>
+                        <span class="link-tag">${link.category}</span>
+                    </div>
+                </a>
+                <div class="card-actions">
+                    <button class="action-btn edit-btn" onclick="editLink('${link.id}')" title="Edit">
+                        <i data-lucide="edit-3"></i>
+                    </button>
+                    <button class="action-btn delete-btn" onclick="deleteLink('${link.id}')" title="Delete">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </div>
+            `;
+            linksGrid.appendChild(card);
+        });
     }
-
-    filteredLinks.forEach((link, index) => {
-        const cardContainer = document.createElement('div');
-        cardContainer.className = 'link-card-wrapper';
-        cardContainer.style.animationDelay = `${index * 0.05}s`;
-
-        cardContainer.innerHTML = `
-            <a href="${link.url}" target="_blank" class="link-card">
-                <div class="icon-wrapper">
-                    <i data-lucide="${link.icon || 'link'}"></i>
-                </div>
-                <h3>${link.title}</h3>
-                <p>${link.description || link.url}</p>
-                <div class="link-meta">
-                    <span>${link.category.toUpperCase()}</span>
-                    <i data-lucide="external-link" style="width: 14px;"></i>
-                </div>
-            </a>
-            <button class="delete-btn" onclick="deleteLink(${index})">
-                <i data-lucide="trash-2"></i>
-            </button>
-        `;
-        linksGrid.appendChild(cardContainer);
-    });
 
     if (window.lucide) lucide.createIcons();
 }
 
-async function deleteLink(index) {
-    if (confirm("Are you sure you want to delete this link?")) {
-        userLinks.splice(index, 1);
-        await dynamicStorage.set('nexus_links', userLinks);
-        renderLinks(userLinks);
-    }
-}
+// --- Event Handlers ---
 
-// Data Handling
-async function saveNewLink() {
+async function handleFormSubmit(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('editId').value;
     const title = document.getElementById('linkTitle').value;
     const url = document.getElementById('linkUrl').value;
     const category = document.getElementById('linkCategory').value;
 
-    if (!title || !url) {
-        alert("Please enter both title and URL");
-        return;
+    if (id) {
+        // Edit existing
+        const index = state.links.findIndex(l => l.id === id);
+        if (index !== -1) {
+            state.links[index] = { ...state.links[index], title, url, category };
+            showToast('Link updated successfully');
+        }
+    } else {
+        // Add new
+        const newLink = {
+            id: Date.now().toString(),
+            title,
+            url,
+            category,
+            icon: null // Will be derived from category
+        };
+        state.links.unshift(newLink);
+        showToast('New link added to portal');
     }
 
-    const newLink = {
-        title,
-        url,
-        category,
-        description: url,
-        icon: category === 'finance' ? 'trending-up' : 'link'
-    };
-
-    userLinks.push(newLink);
-    await dynamicStorage.set('nexus_links', userLinks);
-
-    // Clear form and go home
-    document.getElementById('linkTitle').value = '';
-    document.getElementById('linkUrl').value = '';
-
+    await Storage.save(state.links);
+    renderLinks();
     showPage('home');
 }
 
-saveBtn.addEventListener('click', saveNewLink);
+function editLink(id) {
+    const link = state.links.find(l => l.id === id);
+    if (!link) return;
 
-// Search & Filter
-function handleSearchAndFilter() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const activeCategory = document.querySelector('.filter-btn.active').dataset.category;
+    showPage('add');
+    document.getElementById('editId').value = link.id;
+    document.getElementById('linkTitle').value = link.title;
+    document.getElementById('linkUrl').value = link.url;
+    document.getElementById('linkCategory').value = link.category;
 
-    const filtered = userLinks.filter(link => {
-        const matchesSearch = link.title.toLowerCase().includes(searchTerm) ||
-            link.url.toLowerCase().includes(searchTerm);
-        const matchesCategory = activeCategory === 'all' || link.category === activeCategory;
-        return matchesSearch && matchesCategory;
-    });
-
-    renderLinks(filtered);
+    document.getElementById('formTitle').textContent = 'Update Resource';
+    document.getElementById('formIcon').setAttribute('data-lucide', 'edit');
+    if (window.lucide) lucide.createIcons();
 }
 
-searchInput.addEventListener('input', handleSearchAndFilter);
-filterBtns.forEach(btn => {
+async function deleteLink(id) {
+    if (confirm('Move this resource to trash?')) {
+        state.links = state.links.filter(l => l.id !== id);
+        await Storage.save(state.links);
+        renderLinks();
+        showToast('Resource deleted');
+    }
+}
+
+// --- Search & Filter listeners ---
+
+searchInput.addEventListener('input', (e) => {
+    state.searchTerm = e.target.value;
+    renderLinks();
+});
+
+categoryBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
+        categoryBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        handleSearchAndFilter();
+        state.activeCategory = btn.dataset.category;
+        renderLinks();
     });
 });
 
-// Initialization
+linkForm.addEventListener('submit', handleFormSubmit);
+
+// --- Initialization ---
+
 document.addEventListener('DOMContentLoaded', async () => {
-    const saved = await dynamicStorage.get('nexus_links');
-    if (saved && saved.length > 0) {
-        userLinks = saved;
+    const saved = await Storage.load();
+    if (saved && Array.isArray(saved)) {
+        state.links = saved;
     }
-    renderLinks(userLinks);
+    renderLinks();
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+
+    // Close app when back button pressed on Home (Capacitor)
+    if (window.Capacitor) {
+        window.Capacitor.Plugins.App?.addListener('backButton', () => {
+            const isHomePage = document.getElementById('homePage').classList.contains('active');
+            if (isHomePage) {
+                window.Capacitor.Plugins.App.exitApp();
+            } else {
+                showPage('home');
+            }
+        });
+    }
 });
