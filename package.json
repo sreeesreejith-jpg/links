@@ -1,0 +1,20 @@
+{
+    "name": "nexus-hub",
+    "version": "1.0.0",
+    "description": "Premium Useful Links Portal",
+    "main": "index.html",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@capacitor/android": "^8.0.0",
+        "@capacitor/core": "^8.0.0",
+        "@capacitor/preferences": "^8.0.0"
+    },
+    "devDependencies": {
+        "@capacitor/cli": "^7.4.4"
+    }
+}
