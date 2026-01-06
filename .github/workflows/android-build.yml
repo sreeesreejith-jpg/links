@@ -31,7 +31,12 @@ jobs:
         run: npm run build
 
       - name: Sync Capacitor
-        run: npx cap sync
+        run: npx cap sync android
+
+      - name: Debug - List Files
+        run: |
+          ls -R www/
+          ls -R android/app/src/main/assets/public/ || echo "Public folder not found yet"
 
       - name: Build APK
         run: |
