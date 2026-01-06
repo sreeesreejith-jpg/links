@@ -22,6 +22,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
+    }
 }
 
 repositories {
