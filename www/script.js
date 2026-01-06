@@ -73,27 +73,38 @@ function renderLinks(filteredLinks) {
     }
 
     filteredLinks.forEach((link, index) => {
-        const card = document.createElement('a');
-        card.href = link.url;
-        card.target = "_blank";
-        card.className = 'link-card';
-        card.style.animationDelay = `${index * 0.05}s`;
+        const cardContainer = document.createElement('div');
+        cardContainer.className = 'link-card-wrapper';
+        cardContainer.style.animationDelay = `${index * 0.05}s`;
 
-        card.innerHTML = `
-            <div class="icon-wrapper">
-                <i data-lucide="${link.icon || 'link'}"></i>
-            </div>
-            <h3>${link.title}</h3>
-            <p>${link.description || link.url}</p>
-            <div class="link-meta">
-                <span>${link.category.toUpperCase()}</span>
-                <i data-lucide="external-link" style="width: 14px;"></i>
-            </div>
+        cardContainer.innerHTML = `
+            <a href="${link.url}" target="_blank" class="link-card">
+                <div class="icon-wrapper">
+                    <i data-lucide="${link.icon || 'link'}"></i>
+                </div>
+                <h3>${link.title}</h3>
+                <p>${link.description || link.url}</p>
+                <div class="link-meta">
+                    <span>${link.category.toUpperCase()}</span>
+                    <i data-lucide="external-link" style="width: 14px;"></i>
+                </div>
+            </a>
+            <button class="delete-btn" onclick="deleteLink(${index})">
+                <i data-lucide="trash-2"></i>
+            </button>
         `;
-        linksGrid.appendChild(card);
+        linksGrid.appendChild(cardContainer);
     });
 
     if (window.lucide) lucide.createIcons();
+}
+
+async function deleteLink(index) {
+    if (confirm("Are you sure you want to delete this link?")) {
+        userLinks.splice(index, 1);
+        await dynamicStorage.set('nexus_links', userLinks);
+        renderLinks(userLinks);
+    }
 }
 
 // Data Handling
